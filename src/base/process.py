@@ -20,12 +20,13 @@ class BottoProcess(Generic[T], ABC, Process):
         self.__publish_topic = publish_topic
         self.subscribe_callbacks: dict[str, callable] = {}  # type: ignore
 
-    @abstractmethod
     def run(self):
+        self.connection_bootstrap()
+        self.run_code()
         pass
 
     @abstractmethod
-    def bootstrap(self):
+    def run_code(self):
         pass
 
     def connection_bootstrap(self):
@@ -65,6 +66,7 @@ class BottoProcess(Generic[T], ABC, Process):
     def publish(self, message: T):
         # TODO check if communicator is set
         #  and if message is of correct type
+        print(f"Process {self.name} publishing message to topic {self.__publish_topic}")
         serialized_message = json.dumps(message)
-        self.communicator.publish(self.__publish_topic, serialized_message)
+        self.communicator.publish(serialized_message)
         pass

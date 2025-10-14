@@ -1,17 +1,22 @@
 from abc import ABC, abstractmethod
 
+from src.base.discovery import BottoDiscovery
+
 
 class BottoCommunicator(ABC):
     """
     BottoCommunicator is the base class for all communication mechanisms
     """
 
-    def __init__(self, name: str, port: int):
+    def __init__(self, name: str, port: int, discovery: BottoDiscovery):
         self.port = port
         self.name = name
+        self.discovery = discovery
+        self.discovery.register(name, port)
+        pass
 
     @abstractmethod
-    def publish(self, topic: str, message):
+    def publish(self, message):
         """Publish a message to a topic"""
         pass
 
@@ -23,11 +28,13 @@ class BottoCommunicator(ABC):
 
 class DebugCommunicator(BottoCommunicator):
 
-    def __init__(self, name: str, port: int):
-        super().__init__(name, port)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
-    def publish(self, topic: str, message):
-        print(f"Publishing to {topic}: {message}")
+    def publish(self, message):
+        print(f"Publishing {message} which is on port {self.discovery.get_port(topic)}")
 
     def subscribe(self, topic: str, callback):
-        print(f"Subscribed to {topic} with callback {callback}")
+        print(
+            f"Subscribed to {topic} with callback {callback} which is on port {self.discovery.get_port(topic)}"
+        )

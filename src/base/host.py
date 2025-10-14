@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 from multiprocessing import Process
 from typing import Optional, Self
 from src.base.communicator import BottoCommunicator, DebugCommunicator
+from src.base.discovery import BottoDiscovery
 from src.base.process import BottoProcess
 
 
@@ -18,6 +19,7 @@ class BottoHost:
         self.communicators: dict[str, BottoCommunicator] = {}
 
         self.base_port = 8000
+        self.discovery = BottoDiscovery()
         pass
 
     def attach_process(self, process: BottoProcess, port: Optional[int] = None) -> Self:
@@ -44,13 +46,12 @@ class BottoHost:
             self.communicators[process.topic] = self.communicator_class(
                 process.topic,
                 process.port,
+                self.discovery,
             )
             process.add_communicator(self.communicators[process.topic])
 
         # Start all processes
         for process in self.processes.values():
-            process.connection_bootstrap()
-            process.bootstrap()
             process.start()
 
         # Wait for all processes to finish
