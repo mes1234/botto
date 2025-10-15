@@ -3,8 +3,11 @@ import json
 from multiprocessing import Process
 from typing import Generic, TypeVar
 from typing import Self
+import logging
 
-from src.base.communicator import BottoCommunicator
+from src.base.utils import configure_logger
+from src.base.discovery import BottoDiscovery
+from src.base.communicator import BottoCommunicator, DebugCommunicator
 
 T = TypeVar("T")
 
@@ -19,6 +22,7 @@ class BottoProcess(Generic[T], ABC, Process):
         self.name = name
         self.__publish_topic = publish_topic
         self.subscribe_callbacks: dict[str, callable] = {}  # type: ignore
+        self.logger = configure_logger(self.name)
 
     def run(self):
         self.connection_bootstrap()
@@ -31,6 +35,11 @@ class BottoProcess(Generic[T], ABC, Process):
 
     def connection_bootstrap(self):
         """Bootstrap the process"""
+        self.communicator = self.communicator_class(
+            self.name,
+            self.__port,
+            self.discovery,
+        )
         self.subscribe()
         pass
 
@@ -48,8 +57,14 @@ class BottoProcess(Generic[T], ABC, Process):
         self.__port = port
         return self
 
-    def add_communicator(self, botto_communicator: BottoCommunicator) -> Self:
-        self.communicator = botto_communicator
+    def add_communicator(
+        self, communicator_class: type[BottoCommunicator] = DebugCommunicator
+    ) -> Self:
+        self.communicator_class = communicator_class
+        return self
+
+    def add_discovery(self, discovery: BottoDiscovery) -> Self:
+        self.discovery = discovery
         return self
 
     def register_subscribe_callback(self, topic: str, callback: callable) -> Self:  # type: ignore
@@ -58,15 +73,22 @@ class BottoProcess(Generic[T], ABC, Process):
         return self
 
     def subscribe(self):
-        # TODO check if communicator is set
+
+        if not hasattr(self, "communicator"):
+            raise Exception("Communicator not set")
+
         for topic, callback in self.subscribe_callbacks.items():
             self.communicator.subscribe(topic, callback)
         return
 
     def publish(self, message: T):
-        # TODO check if communicator is set
-        #  and if message is of correct type
-        print(f"Process {self.name} publishing message to topic {self.__publish_topic}")
+
+        if not hasattr(self, "communicator"):
+            raise Exception("Communicator not set")
+
+        self.logger.debug(
+            f"Process {self.name} publishing message to topic {self.__publish_topic}"
+        )
         serialized_message = json.dumps(message)
         self.communicator.publish(serialized_message)
         pass

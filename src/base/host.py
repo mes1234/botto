@@ -4,6 +4,7 @@ from typing import Optional, Self
 from src.base.communicator import BottoCommunicator, DebugCommunicator
 from src.base.discovery import BottoDiscovery
 from src.base.process import BottoProcess
+import logging
 
 
 class BottoHost:
@@ -16,10 +17,10 @@ class BottoHost:
         self.processes: dict[str, BottoProcess] = {}
 
         self.communicator_class = communicator
-        self.communicators: dict[str, BottoCommunicator] = {}
 
         self.base_port = 8000
         self.discovery = BottoDiscovery()
+        self.logger = logging.getLogger(__name__)
         pass
 
     def attach_process(self, process: BottoProcess, port: Optional[int] = None) -> Self:
@@ -40,15 +41,15 @@ class BottoHost:
         """
         Start host
         """
+        # Initialize discovery
+        for process in self.processes.values():
+            self.discovery.register(process.topic, process.port)
 
         # Initialize communicator for each process
         for process in self.processes.values():
-            self.communicators[process.topic] = self.communicator_class(
-                process.topic,
-                process.port,
-                self.discovery,
+            process.add_communicator(self.communicator_class).add_discovery(
+                self.discovery
             )
-            process.add_communicator(self.communicators[process.topic])
 
         # Start all processes
         for process in self.processes.values():

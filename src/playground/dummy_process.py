@@ -10,12 +10,13 @@ class DummyBottoProcess(BottoProcess[str]):
 
     def run_code(self):
         while True:
-            self.publish("Hello from DummyProcess")
+            self.publish(f"Hello from DummyProcess { self.name} ")
+            self.logger.debug("Published message")
             time.sleep(10)
 
     def bootstrap(self):
         pass
 
     def handle_message(self, message):
-        print(f"Received message: {message}")
+        self.logger.info(f"Received message: {message}")
         pass

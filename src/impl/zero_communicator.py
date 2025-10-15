@@ -19,9 +19,11 @@ class BottZeroMqCommunicator(BottoCommunicator):
         self.pub_socket = self.context.socket(zmq.PUB)
         try:
             self.pub_socket.bind(f"tcp://127.0.0.1:{self.port}")
-            print(f"ZeroMQ PUB socket bound to tcp://127.0.0.1:{self.port}")
+            self.logger.info(
+                f"ZeroMQ PUB socket bound to tcp://127.0.0.1:{self.port} for '{self.name}'"
+            )
         except zmq.ZMQError as e:
-            print(f"Failed to bind ZeroMQ PUB socket: {e}")
+            self.logger.error(f"Failed to bind ZeroMQ PUB socket: {e}")
             raise
 
         # Threads for listening
@@ -32,19 +34,21 @@ class BottZeroMqCommunicator(BottoCommunicator):
         Publish a message under the given topic.
         Format: "topic message"
         """
-        self.pub_socket.send_string(f"all {message}")
+        self.pub_socket.send_string(message)
 
     def subscribe(self, topic: str, callback: Callable[[str], None]):
         """
         Subscribe to a topic. Each message on that topic triggers the callback.
         """
-
-        # Subscriber socket
+        port = self.discovery.get_port(topic)
         sub_socket = self.context.socket(zmq.SUB)
 
         # Connect subscriber socket to localhost (broadcast)
-        sub_socket.connect(f"tcp://127.0.0.1:{self.discovery.get_port(topic)}")
-        sub_socket.setsockopt_string(zmq.SUBSCRIBE, "all")
+        sub_socket.connect(f"tcp://127.0.0.1:{port}")
+        sub_socket.setsockopt_string(zmq.SUBSCRIBE, "")
+        self.logger.info(
+            f"ZeroMQ PUB socket subscribed to tcp://127.0.0.1:{port} for '{self.name}'"
+        )
 
         def listen():
             while True:
