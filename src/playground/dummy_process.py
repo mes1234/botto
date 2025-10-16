@@ -15,9 +15,6 @@ class DummyBottoProcess(BottoProcess[str]):
             self.logger.debug("Published message")
             time.sleep(10)
 
-    def bootstrap(self):
-        pass
-
     def handle_message(self, message: str):
         self.counter += 1
         self.logger.info(f"Received message: {message} with counter {self.counter}")

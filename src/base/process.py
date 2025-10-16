@@ -30,15 +30,15 @@ class BottoProcess(Generic[T], ABC, Process):
 
     @abstractmethod
     def run_code(self):
+        """
+        The main code of the process should be implemented here.
+        This method is called when the process is started."""
         pass
 
     def connection_bootstrap(self):
         """Bootstrap the process"""
         self.communicator = self.communicator_class(
-            self.name,
-            self.__port,
-            self.discovery,
-            self.__address
+            self.name, self.__port, self.discovery, self.__address
         )
         self.__subscribe()
         pass
