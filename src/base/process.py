@@ -85,7 +85,7 @@ class BottoProcess(Generic[T], ABC, Process):
             raise Exception("Communicator not set")
 
         for topic, callback in self.subscribe_callbacks.items():
-            self.communicator.subscribe(topic, callback)
+            self.communicator.subscribe(topic, callback, str)
         return
 
     def publish(self, message: T):

@@ -1,7 +1,10 @@
 from abc import ABC, abstractmethod
+from typing import Callable, Type, TypeVar
 
 from src.base.utils import configure_logger
 from src.base.discovery import BottoDiscovery
+
+T = TypeVar("T")
 
 
 class BottoCommunicator(ABC):
@@ -30,6 +33,6 @@ class BottoCommunicator(ABC):
         pass
 
     @abstractmethod
-    def subscribe(self, topic: str, callback):
+    def subscribe(self, topic: str, callback: Callable[[T], None], expected_type: Type):
         """Subscribe to a topic with a callback"""
         pass

@@ -1,15 +1,17 @@
 import zmq
 import threading
 from abc import ABC
-from typing import Callable
+from typing import Callable, Type, TypeVar
 
 from src.base.discovery import BottoDiscovery
 from src.base.communicator import BottoCommunicator
 
+T = TypeVar("T")
+
 
 class BottZeroMqCommunicator(BottoCommunicator):
     """
-    ZeroMQ implementation of BottoCommunicator using PUB/SUB pattern on localhost.
+    ZeroMQ implementation of BottoCommunicator using PUB/SUB pattern.
     """
 
     def __init__(
@@ -41,9 +43,9 @@ class BottZeroMqCommunicator(BottoCommunicator):
         Publish a message under the given topic.
         Format: "topic message"
         """
-        self.pub_socket.send_string(message)
+        self.pub_socket.send_json(message)
 
-    def subscribe(self, topic: str, callback: Callable[[str], None]):
+    def subscribe(self, topic: str, callback: Callable[[T], None], expected_type: Type):
         """
         Subscribe to a topic. Each message on that topic triggers the callback.
         """
@@ -60,8 +62,13 @@ class BottZeroMqCommunicator(BottoCommunicator):
 
         def listen():
             while True:
-                msg = sub_socket.recv_string()
-                callback(msg)
+                msg = sub_socket.recv_json()
+                if expected_type is not None and not isinstance(msg, expected_type):
+                    self.logger.warning(
+                        f"Received message of unexpected type: {type(msg)}"
+                    )
+                    continue
+                callback(msg)  # type: ignore
 
         thread = threading.Thread(target=listen, daemon=True)
         thread.start()
