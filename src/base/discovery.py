@@ -1,4 +1,8 @@
 class BottoDiscovery:
+    """
+    BottoDiscovery is the service discovery mechanism
+    It allows processes to discover each other by topic"""
+
     def __init__(self):
         self.topic_to_ports: dict[str, int] = {}
 

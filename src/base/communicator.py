@@ -26,17 +26,3 @@ class BottoCommunicator(ABC):
     def subscribe(self, topic: str, callback):
         """Subscribe to a topic with a callback"""
         pass
-
-
-class DebugCommunicator(BottoCommunicator):
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-    def publish(self, message):
-        self.logger.info(f"Publishing {message} which is on port {self.port}")
-
-    def subscribe(self, topic: str, callback):
-        self.logger.info(
-            f"Subscribed to {topic} with callback {callback} which is on port {self.discovery.get_port(topic)}"
-        )

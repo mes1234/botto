@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from multiprocessing import Process
 from typing import Optional, Self
-from src.base.communicator import BottoCommunicator, DebugCommunicator
+from src.base.communicator import BottoCommunicator
 from src.base.discovery import BottoDiscovery
 from src.base.process import BottoProcess
 import logging
@@ -12,7 +12,7 @@ class BottoHost:
     BottoHost is the container starting all applications
     """
 
-    def __init__(self, communicator: type[BottoCommunicator] = DebugCommunicator):
+    def __init__(self, communicator: type[BottoCommunicator]):
 
         self.processes: dict[str, BottoProcess] = {}
 
@@ -34,7 +34,7 @@ class BottoHost:
         else:
             s = port
 
-        process.assign_port(s)
+        process._assign_port(s)
         return self
 
     def start(self):
@@ -47,7 +47,7 @@ class BottoHost:
 
         # Initialize communicator for each process
         for process in self.processes.values():
-            process.add_communicator(self.communicator_class).add_discovery(
+            process._add_communicator(self.communicator_class)._add_discovery(
                 self.discovery
             )
 

@@ -7,6 +7,7 @@ class DummyBottoProcess(BottoProcess[str]):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.counter = 0
 
     def run_code(self):
         while True:
@@ -17,6 +18,7 @@ class DummyBottoProcess(BottoProcess[str]):
     def bootstrap(self):
         pass
 
-    def handle_message(self, message):
-        self.logger.info(f"Received message: {message}")
+    def handle_message(self, message: str):
+        self.counter += 1
+        self.logger.info(f"Received message: {message} with counter {self.counter}")
         pass
