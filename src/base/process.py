@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 import json
 from multiprocessing import Process
-from typing import Callable, Generic, TypeVar
+from typing import Callable, Generic, Tuple, Type, TypeVar
 from typing import Self
 
 from src.base.utils import configure_logger
@@ -20,12 +20,19 @@ class BottoProcess(Generic[T], ABC, Process):
         super().__init__()
         self.name = name
         self.__publish_topic = publish_topic
-        self.subscribe_callbacks: dict[str, Callable[[T], None]] = {}
+        self.subscribe_callbacks: dict[str, Tuple[Callable[[T], None], Type]] = {}
         self.logger = configure_logger(self.name)
 
     def run(self):
         self.connection_bootstrap()
         self.run_code()
+        pass
+
+    @abstractmethod
+    def get_topic_type(self) -> Type:
+        """
+        Return the type of the topic
+        """
         pass
 
     @abstractmethod
@@ -75,17 +82,21 @@ class BottoProcess(Generic[T], ABC, Process):
         return self
 
     def register_subscribe_callback(
-        self, topic: str, callback: Callable[[T], None]
+        # TODO SIMPLIFY THIS
+        self,
+        topic: str,
+        callback: Callable[[T], None],
+        expected_type: Type,
     ) -> Self:
-        self.subscribe_callbacks[topic] = callback
+        self.subscribe_callbacks[topic] = (callback, expected_type)
         return self
 
     def __subscribe(self):
         if not hasattr(self, "communicator"):
             raise Exception("Communicator not set")
 
-        for topic, callback in self.subscribe_callbacks.items():
-            self.communicator.subscribe(topic, callback, str)
+        for topic, (callback, expected_type) in self.subscribe_callbacks.items():
+            self.communicator.subscribe(topic, callback, expected_type)
         return
 
     def publish(self, message: T):

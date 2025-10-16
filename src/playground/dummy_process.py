@@ -1,4 +1,5 @@
 import time
+from typing import Type
 
 from src.base.process import BottoProcess
 
@@ -19,3 +20,6 @@ class DummyBottoProcess(BottoProcess[str]):
         self.counter += 1
         self.logger.info(f"Received message: {message} with counter {self.counter}")
         pass
+
+    def get_topic_type(self) -> Type:
+        return str

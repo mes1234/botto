@@ -10,9 +10,15 @@ proc1 = DummyBottoProcess("dummy1", "topic1")
 proc2 = DummyBottoProcess("dummy2", "topic2")
 proc3 = DummyBottoProcess("dummy3", "topic3")
 
-proc1.register_subscribe_callback(proc2.topic, proc1.handle_message)
-proc2.register_subscribe_callback(proc1.topic, proc2.handle_message)
-proc3.register_subscribe_callback(proc1.topic, proc3.handle_message)
+proc1.register_subscribe_callback(
+    proc2.topic, proc1.handle_message, proc2.get_topic_type()
+)
+proc2.register_subscribe_callback(
+    proc1.topic, proc2.handle_message, proc1.get_topic_type()
+)
+proc3.register_subscribe_callback(
+    proc1.topic, proc3.handle_message, proc1.get_topic_type()
+)
 
 host = BottoHost(BottZeroMqCommunicator)
 
