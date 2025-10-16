@@ -9,11 +9,18 @@ class BottoCommunicator(ABC):
     BottoCommunicator is the base class for all communication mechanisms
     """
 
-    def __init__(self, name: str, port: int, discovery: BottoDiscovery):
+    def __init__(
+        self,
+        name: str,
+        port: int,
+        discovery: BottoDiscovery,
+        address: str,
+    ):
         self.port = port
+        self.address = address
         self.name = name
         self.discovery = discovery
-        self.discovery.register(name, port)
+        self.discovery.register(name, port, address)
         self.logger = configure_logger(self.name)
         pass
 

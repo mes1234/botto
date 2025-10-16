@@ -23,7 +23,12 @@ class BottoHost:
         self.logger = logging.getLogger(__name__)
         pass
 
-    def attach_process(self, process: BottoProcess, port: Optional[int] = None) -> Self:
+    def attach_process(
+        self,
+        process: BottoProcess,
+        port: Optional[int] = None,
+        adress: str = "127.0.0.1",
+    ) -> Self:
         """
         Attach a process to the host
         """
@@ -35,6 +40,7 @@ class BottoHost:
             s = port
 
         process._assign_port(s)
+        process._assign_adress(adress)
         return self
 
     def start(self):
@@ -43,7 +49,7 @@ class BottoHost:
         """
         # Initialize discovery
         for process in self.processes.values():
-            self.discovery.register(process.topic, process.port)
+            self.discovery.register(process.topic, process.port, process.address)
 
         # Initialize communicator for each process
         for process in self.processes.values():

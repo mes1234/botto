@@ -38,6 +38,7 @@ class BottoProcess(Generic[T], ABC, Process):
             self.name,
             self.__port,
             self.discovery,
+            self.__address
         )
         self.__subscribe()
         pass
@@ -52,8 +53,17 @@ class BottoProcess(Generic[T], ABC, Process):
         """Return the port of the process"""
         return self.__port
 
+    @property
+    def address(self):
+        """Return the adress of the process"""
+        return self.__address
+
     def _assign_port(self, port: int) -> Self:
         self.__port = port
+        return self
+
+    def _assign_adress(self, address: str) -> Self:
+        self.__address = address
         return self
 
     def _add_communicator(self, communicator_class: type[BottoCommunicator]) -> Self:
