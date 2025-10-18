@@ -16,10 +16,10 @@ class GaitGeneratorProcess(BottoProcess[GaitPhaseMsg]):
     def generate_gait_phase(self) -> GaitPhaseMsg:
         # Placeholder for gait phase generation logic
         leg_positions = {
-            LegEnum.FRONT_LEFT: LegPositionMsg(0.0, 0.0, 0.0),
-            LegEnum.FRONT_RIGHT: LegPositionMsg(0.0, 0.0, 0.0),
-            LegEnum.BACK_LEFT: LegPositionMsg(0.0, 0.0, 0.0),
-            LegEnum.BACK_RIGHT: LegPositionMsg(0.0, 0.0, 0.0),
+            LegEnum.FRONT_LEFT: LegPositionMsg(1.0, 0.0, 0.0),
+            LegEnum.FRONT_RIGHT: LegPositionMsg(0.0, 1.0, 0.0),
+            LegEnum.BACK_LEFT: LegPositionMsg(0.0, 0.0, 1.0),
+            LegEnum.BACK_RIGHT: LegPositionMsg(0.0, 2.0, 0.0),
         }
         return GaitPhaseMsg(leg_positions)
 

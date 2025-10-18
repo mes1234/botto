@@ -2,7 +2,6 @@ from src.playground.processors.gait_generator import GaitGeneratorProcess
 from src.playground.processors.ik_resolver import IKResolverProcess
 from src.base.host import BottoHost
 from src.impl.zero_communicator import BottZeroMqCommunicator
-from src.playground.processors.dummy_process import DummyBottoProcess
 
 import src.base.config as config
 
