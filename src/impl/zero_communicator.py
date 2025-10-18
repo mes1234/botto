@@ -60,14 +60,14 @@ class BottZeroMqCommunicator(BottoCommunicator):
         sub_socket.connect(f"tcp://{adress}:{port}")
         sub_socket.setsockopt_string(zmq.SUBSCRIBE, "")
         self.logger.info(
-            f"ZeroMQ PUB socket subscribed to tcp://{adress}:{port} for '{self.name}'"
+            f"ZeroMQ PUB socket subscribed to tcp://{adress}:{port} for '{topic}'"
         )
 
         def listen():
             while True:
                 msg = sub_socket.recv_json()
                 try:
-                    payload = json.loads(msg)  # type: ignore
+                    payload = json.loads(msg)   # type: ignore
                     deserialized_msg = expected_type.from_dict(payload)
                     callback(deserialized_msg)
                 except Exception:
