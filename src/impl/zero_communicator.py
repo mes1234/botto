@@ -1,12 +1,13 @@
+import inspect
+import json
 import zmq
 import threading
 from abc import ABC
-from typing import Callable, Type, TypeVar
+from typing import Callable, Type, TypeVar, get_type_hints
 
+from src.base.messages import BottoMessage
 from src.base.discovery import BottoDiscovery
 from src.base.communicator import BottoCommunicator
-
-T = TypeVar("T")
 
 
 class BottZeroMqCommunicator(BottoCommunicator):
@@ -45,10 +46,12 @@ class BottZeroMqCommunicator(BottoCommunicator):
         """
         self.pub_socket.send_json(message)
 
-    def subscribe(self, topic: str, callback: Callable[[T], None], expected_type: Type):
+    def subscribe(self, topic: str, callback: Callable[[BottoMessage], None]):
         """
         Subscribe to a topic. Each message on that topic triggers the callback.
         """
+        expected_type = self._extract_expected_type(callback)
+
         port = self.discovery.get_port(topic)
         adress = self.discovery.get_adress(topic)
         sub_socket = self.context.socket(zmq.SUB)
@@ -63,13 +66,44 @@ class BottZeroMqCommunicator(BottoCommunicator):
         def listen():
             while True:
                 msg = sub_socket.recv_json()
-                if expected_type is not None and not isinstance(msg, expected_type):
-                    self.logger.warning(
-                        f"Received message of unexpected type: {type(msg)}"
-                    )
+                try:
+                    payload = json.loads(msg)  # type: ignore
+                    deserialized_msg = expected_type.from_dict(payload)
+                    callback(deserialized_msg)
+                except Exception:
+                    self.logger.error("Failed to decode JSON message")
                     continue
-                callback(msg)  # type: ignore
 
         thread = threading.Thread(target=listen, daemon=True)
         thread.start()
         self._subscriber_threads.append(thread)
+
+    def _extract_expected_type(
+        self, callback: Callable[[BottoMessage], None]
+    ) -> Type[BottoMessage]:
+        """
+        Extract the expected message type from the callback's type hints.
+        """
+        try:
+            hints = get_type_hints(callback)
+            sig = inspect.signature(callback)
+            params = [
+                p
+                for p in sig.parameters.values()
+                if p.kind in (p.POSITIONAL_ONLY, p.POSITIONAL_OR_KEYWORD)
+            ]
+            if not params:
+                raise Exception("Callback must have at least one positional parameter")
+
+            first_param_name = params[0].name
+            expected_type: Type[BottoMessage] = hints.get(first_param_name, None)  # type: ignore
+
+            if expected_type is None:
+                raise Exception(
+                    "Could not determine expected message type from callback"
+                )
+
+            return expected_type
+        except Exception as e:
+            self.logger.error(f"Failed to extract expected type: {e}")
+            raise

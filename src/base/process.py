@@ -4,6 +4,7 @@ from multiprocessing import Process
 from typing import Callable, Generic, Tuple, Type, TypeVar
 from typing import Self
 
+from src.base.messages import BottoMessage
 from src.base.utils import configure_logger
 from src.base.discovery import BottoDiscovery
 from src.base.communicator import BottoCommunicator
@@ -20,7 +21,7 @@ class BottoProcess(Generic[T], ABC, Process):
         super().__init__()
         self.name = name
         self.__publish_topic = publish_topic
-        self.subscribe_callbacks: dict[str, Tuple[Callable[[T], None], Type]] = {}
+        self.subscribe_callbacks: dict[str, Callable[[BottoMessage], None]] = {}
         self.logger = configure_logger(self.name)
 
     def run(self):
@@ -29,7 +30,7 @@ class BottoProcess(Generic[T], ABC, Process):
         pass
 
     @abstractmethod
-    def get_topic_type(self) -> Type:
+    def get_topic_type(self) -> type[BottoMessage]:
         """
         Return the type of the topic
         """
@@ -82,21 +83,21 @@ class BottoProcess(Generic[T], ABC, Process):
         return self
 
     def register_subscribe_callback(
-        # TODO SIMPLIFY THIS
         self,
-        topic: str,
-        callback: Callable[[T], None],
-        expected_type: Type,
+        publisher_process: "BottoProcess",
+        callback: Callable,
     ) -> Self:
-        self.subscribe_callbacks[topic] = (callback, expected_type)
+        """Register a callback for a topic subscription"""
+        topic = publisher_process.topic
+        self.subscribe_callbacks[topic] = callback
         return self
 
     def __subscribe(self):
         if not hasattr(self, "communicator"):
             raise Exception("Communicator not set")
 
-        for topic, (callback, expected_type) in self.subscribe_callbacks.items():
-            self.communicator.subscribe(topic, callback, expected_type)
+        for topic, callback in self.subscribe_callbacks.items():
+            self.communicator.subscribe(topic, callback)
         return
 
     def publish(self, message: T):
@@ -106,6 +107,6 @@ class BottoProcess(Generic[T], ABC, Process):
         self.logger.debug(
             f"Process {self.name} publishing message to topic {self.__publish_topic}"
         )
-        serialized_message = json.dumps(message)
+        serialized_message = json.dumps(message.to_dict())  # type: ignore
         self.communicator.publish(serialized_message)
         pass
