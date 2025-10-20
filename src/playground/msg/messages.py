@@ -71,3 +71,14 @@ class LegAnglesPhaseMsg(BottoMessage):
         return cls(
             {LegEnum[name]: LegAnglesMsg.from_dict(ang) for name, ang in d.items()}
         )
+
+
+class NoneMsg(BottoMessage):
+    """Message representing no data."""
+
+    def to_dict(self) -> dict:
+        return {}
+
+    @classmethod
+    def from_dict(cls, d: dict) -> "NoneMsg":
+        return cls()

@@ -2,14 +2,10 @@ import pybullet as p
 import pybullet_data
 import time
 
-from urdf_generator import generate_quadruped_urdf
-
 
 def show_quadruped():
     # Step 1: Generate URDF file
     urdf_file = "quadruped_full.urdf"
-
-    # generate_quadruped_urdf(filename=urdf_file)
 
     # Step 2: Start PyBullet GUI
     physics_client = p.connect(p.GUI)
