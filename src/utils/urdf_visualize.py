@@ -37,20 +37,16 @@ def show_quadruped():
         sliders.append(
             (joint_name, p.addUserDebugParameter(joint_name, -1.57, 1.57, 0))
         )
-    j = 0.0
-    dir = 1
     # Step 5: Run the simulation loop
     while True:
         # Read all sliders and set joint positions
         for i, (joint_name, slider_id) in enumerate(sliders):
-            # target_pos = p.readUserDebugParameter(slider_id)
-            target_pos = j
+            target_pos = p.readUserDebugParameter(slider_id)
             p.setJointMotorControl2(
                 robot_id, i, p.POSITION_CONTROL, targetPosition=target_pos, force=50
             )
         p.stepSimulation()
         time.sleep(1.0 / 60.0)
-        j += dir * 0.001
 
 
 if __name__ == "__main__":
