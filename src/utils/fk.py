@@ -38,6 +38,8 @@ class FK_Leg:
 
     def compute_fk(self, angles: Angles) -> Position:
         # Existing rotations
+
+        # TODO vectorize it
         rot_alfa_1 = R.from_rotvec(np.array([1.0, 0.0, 0.0]) * angles.alfa_1)
         rot_alfa_2 = R.from_rotvec(np.array([0.0, 1.0, 0.0]) * angles.alfa_2)
 

@@ -1,6 +1,6 @@
 import numpy as np
 import pytest
-from src.utils.fk import Angles, Position
+from src.utils.fk import Position
 from src.utils.ik import IK_Limits, IK_Leg
 from pytest import approx
 
