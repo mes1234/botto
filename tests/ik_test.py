@@ -6,10 +6,10 @@ from pytest import approx
 
 
 def test_init_position():
-    step = np.pi / 90.0  # 2deg resolution
+    step = np.pi / 180.0  # 2deg resolution
     alfa_1_limits = IK_Limits(-np.pi / 4.0, np.pi / 4.0)
     alfa_2_limits = IK_Limits(-np.pi / 4.0, np.pi / 4.0)
-    alfa_3_limits = IK_Limits(-np.pi / 4.0, np.pi / 4.0)
+    alfa_3_limits = IK_Limits(0.0, np.pi / 2.0)
     l_1 = 1.0
     l_2 = 1.0
     k = 1
