@@ -1,12 +1,12 @@
 import numpy as np
 import pytest
-from src.utils.fk import FK_Leg
+from src.utils.fk import Angles, FK_Leg
 from pytest import approx
 
 
 def test_init_position():
     leg = FK_Leg(1.0, 1.0)
-    pos = leg.compute_fk(0.0, 0.0, 0.0)
+    pos = leg.compute_fk(Angles(0.0, 0.0, 0.0))
     assert pos.x == approx(0.0)
     assert pos.y == approx(0.0)
     assert pos.z == approx(-2.0)
@@ -35,7 +35,8 @@ def test_init_position():
 )
 def test_fk(alfa_1: float, alfa_2: float, alfa_3: float, x: float, y: float, z: float):
     leg = FK_Leg(1.0, 1.0)
-    pos = leg.compute_fk(alfa_1, alfa_2, alfa_3)
+    angles = Angles(alfa_1, alfa_2, alfa_3)
+    pos = leg.compute_fk(angles)
     actual_x = float(pos.x)
     actual_y = float(pos.y)
     actual_z = float(pos.z)

@@ -1,11 +1,18 @@
-from typing import List
+from typing import List, Optional
 import numpy as np
 from scipy.spatial.transform import Rotation as R
 
 
 class Position:
+
     def __init__(
-        self, x: float, y: float, z: float, x_1: float, y_1: float, z_1: float
+        self,
+        x: float,
+        y: float,
+        z: float,
+        x_1: Optional[float] = None,
+        y_1: Optional[float] = None,
+        z_1: Optional[float] = None,
     ):
         self.x = x
         self.y = y
@@ -15,16 +22,24 @@ class Position:
         self.z_1 = z_1
 
 
+class Angles:
+    def __init__(self, alfa_1: float, alfa_2: float, alfa_3: float):
+        self.alfa_1 = alfa_1
+        self.alfa_2 = alfa_2
+        self.alfa_3 = alfa_3
+
+
 class FK_Leg:
-    def __init__(self, l1: float, l2: float):
+
+    def __init__(self, l1: float, l2: float, *args, **kwargs):
         self.l1 = l1
         self.l2 = l2
         pass
 
-    def compute_fk(self, alfa_1: float, alfa_2: float, alfa_3: float) -> Position:
+    def compute_fk(self, angles: Angles) -> Position:
         # Existing rotations
-        rot_alfa_1 = R.from_rotvec(np.array([1.0, 0.0, 0.0]) * alfa_1)
-        rot_alfa_2 = R.from_rotvec(np.array([0.0, 1.0, 0.0]) * alfa_2)
+        rot_alfa_1 = R.from_rotvec(np.array([1.0, 0.0, 0.0]) * angles.alfa_1)
+        rot_alfa_2 = R.from_rotvec(np.array([0.0, 1.0, 0.0]) * angles.alfa_2)
 
         # Initial points
         point_mid = np.array([0.0, 0.0, -self.l1])
@@ -37,7 +52,7 @@ class FK_Leg:
 
         # Rotation around y-axis by alfa_3 **around point_mid**
         local_y = rot12.apply([0.0, 1.0, 0.0])
-        rot_alfa_3 = R.from_rotvec(local_y * alfa_3)
+        rot_alfa_3 = R.from_rotvec(local_y * angles.alfa_3)
 
         # Translate fk_end_pre_rot3 to origin relative to fk_mid
         relative = fk_end_pre_rot3 - fk_mid
