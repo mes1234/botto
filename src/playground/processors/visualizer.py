@@ -43,6 +43,7 @@ class VisualizerProcessor(BottoProcess[NoneMsg]):
         )
         # Step 3: Load ground and robot
         p.setGravity(0, 0, -9.81)
+        p.setRealTimeSimulation(1)
 
         self.plane_id = p.loadURDF("plane.urdf")
         self.robot_id = p.loadURDF(self.urdf_file, basePosition=[0, 0, 0.3])
@@ -77,8 +78,8 @@ class VisualizerProcessor(BottoProcess[NoneMsg]):
                 forces=forces,
             )
 
-            p.stepSimulation()
-            time.sleep(1.0 / 250.0)
+            # p.stepSimulation()
+            time.sleep(1.0 / 25.0)
 
     def get_topic_type(self):
         return NoneMsg
