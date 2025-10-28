@@ -67,11 +67,14 @@ class BottZeroMqCommunicator(BottoCommunicator):
             while True:
                 msg = sub_socket.recv_json()
                 try:
-                    payload = json.loads(msg)   # type: ignore
+                    payload = json.loads(msg)  # type: ignore
                     deserialized_msg = expected_type.from_dict(payload)
-                    callback(deserialized_msg)
-                except Exception:
-                    self.logger.error("Failed to decode JSON message")
+                    try:
+                        callback(deserialized_msg)
+                    except Exception as e_handler:
+                        self.logger.error(f"Error in callback handler: {e_handler}")
+                except Exception as e_msg:
+                    self.logger.error("Failed to decode JSON message: {e_msg}")
                     continue
 
         thread = threading.Thread(target=listen, daemon=True)
