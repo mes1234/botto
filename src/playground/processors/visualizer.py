@@ -71,7 +71,7 @@ class VisualizerProcessor(BottoProcess[NoneMsg]):
                 )
 
             p.stepSimulation()
-            time.sleep(1.0 / 60.0)
+            time.sleep(1.0 / 250.0)
 
     def get_topic_type(self):
         return NoneMsg
