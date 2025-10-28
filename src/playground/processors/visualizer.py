@@ -58,17 +58,24 @@ class VisualizerProcessor(BottoProcess[NoneMsg]):
                 (joint_name, p.addUserDebugParameter(joint_name, -1.57, 1.57, 0))
             )
             self.logger.info(f"Slider created for joint: {joint_name}")
+
+        forces = [50] * (num_joints)
+        ii = list(range(num_joints))
+        positions = [0] * (num_joints)
+        names = [
+            p.getJointInfo(self.robot_id, i)[1].decode("utf-8")
+            for i in range(num_joints)
+        ]
+
         while True:
-            for i in range(num_joints):
-                joint_name = p.getJointInfo(self.robot_id, i)[1].decode("utf-8")
-                position = self.joints[joint_name]
-                p.setJointMotorControl2(
-                    self.robot_id,
-                    i,
-                    p.POSITION_CONTROL,
-                    targetPosition=position,
-                    force=50,
-                )
+            positions = [self.joints[name] for name in names]
+            p.setJointMotorControlArray(
+                self.robot_id,
+                ii,
+                p.POSITION_CONTROL,
+                targetPositions=positions,
+                forces=forces,
+            )
 
             p.stepSimulation()
             time.sleep(1.0 / 250.0)
