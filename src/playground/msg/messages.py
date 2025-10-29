@@ -78,6 +78,19 @@ class LegAnglesPhaseMsg(BottoMessage):
         return cls(
             {LegEnum[name]: LegAnglesMsg.from_dict(ang) for name, ang in d.items()}
         )
+        
+class SensorDataMsg(BottoMessage):
+    """Message representing sensor data."""
+
+    def __init__(self, sensor_values: dict[str, float]):
+        self.sensor_values = sensor_values
+
+    def to_dict(self) -> dict:
+        return self.sensor_values
+
+    @classmethod
+    def from_dict(cls, d: dict) -> "SensorDataMsg":
+        return cls(d)
 
 
 class NoneMsg(BottoMessage):

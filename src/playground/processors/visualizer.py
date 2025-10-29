@@ -1,8 +1,8 @@
+from typing import List
 from src.playground.msg.messages import (
-    LegAnglesMsg,
     LegAnglesPhaseMsg,
     LegEnum,
-    NoneMsg,
+    SensorDataMsg,
 )
 from src.base.process import BottoProcess
 import pybullet as p
@@ -10,26 +10,26 @@ import pybullet_data
 import time
 
 
-class VisualizerProcessor(BottoProcess[NoneMsg]):
+class VisualizerProcessor(BottoProcess[SensorDataMsg]):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.urdf_file = "quadruped_full.urdf"
 
-        self.joints = {
-            "base_joint": 0.0,
-            "base_link_to_fl_hip": 0.0,
-            "fl_hip_to_fl_knee": 0.0,
-            "fl_knee_to_fl_foot": 0.0,
-            "base_link_to_fr_hip": 0.0,
-            "fr_hip_to_fr_knee": 0.0,
-            "fr_knee_to_fr_foot": 0.0,
-            "base_link_to_rr_hip": 0.0,
-            "rr_hip_to_rr_knee": 0.0,
-            "rr_knee_to_rr_foot": 0.0,
-            "base_link_to_rl_hip": 0.0,
-            "rl_hip_to_rl_knee": 0.0,
-            "rl_knee_to_rl_foot": 0.0,
-        }
+        # self.joints = {
+        #     "base_joint": 0.0,
+        #     "base_link_to_fl_hip": 0.0,
+        #     "fl_hip_to_fl_knee": 0.0,
+        #     "fl_knee_to_fl_foot": 0.0,
+        #     "base_link_to_fr_hip": 0.0,
+        #     "fr_hip_to_fr_knee": 0.0,
+        #     "fr_knee_to_fr_foot": 0.0,
+        #     "base_link_to_rr_hip": 0.0,
+        #     "rr_hip_to_rr_knee": 0.0,
+        #     "rr_knee_to_rr_foot": 0.0,
+        #     "base_link_to_rl_hip": 0.0,
+        #     "rl_hip_to_rl_knee": 0.0,
+        #     "rl_knee_to_rl_foot": 0.0,
+        # }
 
     def run_code(self):
         # Step 2: Start PyBullet GUI
@@ -50,16 +50,6 @@ class VisualizerProcessor(BottoProcess[NoneMsg]):
         num_joints = p.getNumJoints(self.robot_id)
         self.logger.info(f"Robot loaded with {num_joints} joints.")
 
-        # Step 4: Create sliders for each joint
-        self.sliders = []
-        for i in range(num_joints):
-            joint_info = p.getJointInfo(self.robot_id, i)
-            joint_name = joint_info[1].decode("utf-8")
-            self.sliders.append(
-                (joint_name, p.addUserDebugParameter(joint_name, -1.57, 1.57, 0))
-            )
-            self.logger.info(f"Slider created for joint: {joint_name}")
-
         forces = [50] * (num_joints)
         ii = list(range(num_joints))
         positions = [0] * (num_joints)
@@ -67,7 +57,7 @@ class VisualizerProcessor(BottoProcess[NoneMsg]):
             p.getJointInfo(self.robot_id, i)[1].decode("utf-8")
             for i in range(num_joints)
         ]
-
+        self.joints = {name: 0.0 for name in names}
         while True:
             positions = [self.joints[name] for name in names]
             p.setJointMotorControlArray(
@@ -77,12 +67,16 @@ class VisualizerProcessor(BottoProcess[NoneMsg]):
                 targetPositions=positions,
                 forces=forces,
             )
+            pos, orient = p.getBasePositionAndOrientation(self.robot_id)
 
-            # p.stepSimulation()
-            time.sleep(1.0 / 25.0)
+            msg = VisualizerProcessor.map(position=pos, orientation=orient)
+
+            self.publish(message=msg)
+
+            time.sleep(1.0 / 30.0)
 
     def get_topic_type(self):
-        return NoneMsg
+        return SensorDataMsg
 
     def visualize_handler(self, msg: LegAnglesPhaseMsg):
         self.logger.debug("Received LegAnglesMsg for visualization")
@@ -104,3 +98,17 @@ class VisualizerProcessor(BottoProcess[NoneMsg]):
                 self.joints["rr_hip_to_rr_knee"] = angles_msg.alfa_2
                 self.joints["rr_knee_to_rr_foot"] = angles_msg.alfa_3
         pass
+
+    @classmethod
+    def map(cls, position: List[float], orientation: List[float]) -> SensorDataMsg:
+        data = {
+            "p_x": position[0],
+            "p_y": position[1],
+            "p_z": position[2],
+            "o_x": orientation[0],
+            "o_y": orientation[1],
+            "o_z": orientation[2],
+            "o_w": orientation[3],
+        }
+
+        return SensorDataMsg(data)

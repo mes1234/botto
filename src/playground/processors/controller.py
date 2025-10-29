@@ -1,13 +1,22 @@
 from time import sleep
 import tkinter as tk
 from tkinter import ttk
+from matplotlib.figure import Figure
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from src.base.process import BottoProcess
-from src.playground.msg.messages import GaitPhaseMsg, GaitPhaseWithCorrectionsMsg
+from src.playground.msg.messages import (
+    GaitPhaseMsg,
+    GaitPhaseWithCorrectionsMsg,
+    SensorDataMsg,
+)
 
 
 class Controller(BottoProcess[GaitPhaseWithCorrectionsMsg]):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.sensors = None
+        self.sensor_o_x = []
+        self.sensor_o_y = []
 
     def run_code(self):
         root = tk.Tk()
@@ -44,10 +53,36 @@ class Controller(BottoProcess[GaitPhaseWithCorrectionsMsg]):
         self.value_label = ttk.Label(root, text="Offset X: 0.00, Y: 0.00, Z: 0.00")
         self.value_label.pack(pady=20)
 
+        self.fig = Figure(figsize=(6, 4), dpi=100)
+        self.ax = self.fig.add_subplot(111)
+        self.ax.set_title("Sensor X/Y vs Time")
+        self.ax.set_xlabel("Time (s)")
+        self.ax.set_ylabel("Sensor Values")
+        self.ax.grid(True)
+
+        # Two trend lines: one for X, one for Y
+        (self.line_x,) = self.ax.plot([], "r-", label="Sensor X")
+        (self.line_y,) = self.ax.plot([], "b-", label="Sensor Y")
+        self.ax.legend(loc="upper right")
+
+        # Embed the figure in Tkinter
+        self.canvas = FigureCanvasTkAgg(self.fig, master=root)
+        self.canvas.get_tk_widget().pack(fill="both", expand=True, padx=10, pady=10)
+
         # Start main loop
+        root.after(100, self.update_plot)
         root.mainloop()
 
-    def controller_handler(self, gait_phase: GaitPhaseMsg):
+    def handle_sensors(self, sensors: SensorDataMsg):
+        self.sensors = sensors
+        self.sensor_o_x.append(sensors.sensor_values["o_x"])
+        self.sensor_o_y.append(sensors.sensor_values["o_y"])
+        # Limit history length to avoid slowing down
+        if len(self.sensor_o_x) > 200:
+            self.sensor_o_x.pop(0)
+            self.sensor_o_y.pop(0)
+
+    def handle_gait(self, gait_phase: GaitPhaseMsg):
 
         if not self.enable_var.get():
             self.logger.debug("Controller disabled; passing through GaitPhaseMsg")
@@ -71,3 +106,18 @@ class Controller(BottoProcess[GaitPhaseWithCorrectionsMsg]):
         y = self.y_slider.get()
         z = self.z_slider.get()
         self.value_label.config(text=f"Offset X: {x:.2f}, Y: {y:.2f}, Z: {z:.2f}")
+
+    def update_plot(self):
+        """Update time-series plot of sensor X and Y values."""
+        x_axis = list(range(len(self.sensor_o_x)))
+        self.line_x.set_data(x_axis, self.sensor_o_x)
+        self.line_y.set_data(x_axis, self.sensor_o_y)
+
+        # Adjust axes dynamically
+        self.ax.relim()
+        self.ax.autoscale_view()
+
+        self.canvas.draw_idle()
+
+        # Refresh every 100 ms
+        self.canvas.get_tk_widget().after(100, self.update_plot)

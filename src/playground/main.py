@@ -14,8 +14,11 @@ ik_resolver = IKResolverProcess("ik_resolver", "leg_angles_phase_topic")
 controller = Controller("controller", "gait_phase_corrections_topic")
 visualizer = VisualizerProcessor("visualizer", "none_topic")
 
-controller.register_subscribe_callback(gait_generator, controller.controller_handler)
+controller.register_subscribe_callback(gait_generator, controller.handle_gait)
+controller.register_subscribe_callback(visualizer, controller.handle_sensors)
+
 ik_resolver.register_subscribe_callback(controller, ik_resolver.resolve_ik_handler)
+
 visualizer.register_subscribe_callback(ik_resolver, visualizer.visualize_handler)
 
 host = BottoHost(BottZeroMqCommunicator)

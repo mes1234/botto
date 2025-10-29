@@ -12,8 +12,8 @@ class GaitGeneratorProcess(BottoProcess[GaitPhaseMsg]):
     def run_code(self):
         counter = 0
         while True:
-            phase = sin(counter / 100.0) / 10.0 * 2
-            # counter += 1
+            phase = sin(counter) / 10.0 * 2.0
+            counter += 1
             gait_phase = self.generate_gait_phase(phase)
             sleep(0.1)  # Simulate processing delay
             self.publish(gait_phase)
