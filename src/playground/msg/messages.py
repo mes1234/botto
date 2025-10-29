@@ -41,6 +41,13 @@ class GaitPhaseMsg(BottoMessage):
         )
 
 
+class GaitPhaseWithCorrectionsMsg(GaitPhaseMsg):
+    """Message representing the positions of all legs in a gait phase with corrections."""
+
+    def __init__(self, leg_positions: dict[LegEnum, LegPositionMsg]):
+        super().__init__(leg_positions)
+
+
 class LegAnglesMsg(BottoMessage):
     """Message representing the joint angles of a leg."""
 

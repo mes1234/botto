@@ -2,7 +2,7 @@ from typing import List
 import numpy as np
 from src.base.process import BottoProcess
 from src.playground.msg.messages import (
-    GaitPhaseMsg,
+    GaitPhaseWithCorrectionsMsg,
     LegAnglesMsg,
     LegAnglesPhaseMsg,
     LegEnum,
@@ -42,16 +42,16 @@ class IKResolverProcess(BottoProcess[LegAnglesPhaseMsg]):
     def get_topic_type(self):
         return LegAnglesPhaseMsg
 
-    def resolve_ik_handler(self, gait_phase: GaitPhaseMsg):
+    def resolve_ik_handler(self, gait_phase: GaitPhaseWithCorrectionsMsg):
         phase = IKResolverProcess.remap(
             self.leg.compute_ik(IKResolverProcess.map(gait_phase))
         )
-        self.logger.debug("Received GaitPhaseMsg for IK resolution")
+        self.logger.debug("Received GaitPhaseWithCorrectionsMsg for IK resolution")
 
         self.publish(phase)
 
     @classmethod
-    def map(cls, gait_phase: GaitPhaseMsg) -> List[Position]:
+    def map(cls, gait_phase: GaitPhaseWithCorrectionsMsg) -> List[Position]:
         positions = []
         for leg_enum in LegEnum:
             leg_pos_msg = gait_phase.leg_positions[leg_enum]
