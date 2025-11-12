@@ -1,3 +1,4 @@
+from collections.abc import Iterator
 from enum import Enum
 
 from src.base.messages import BottoMessage
@@ -22,6 +23,11 @@ class LegEnum(Enum):
     FRONT_RIGHT = 2
     BACK_LEFT = 3
     BACK_RIGHT = 4
+
+    def __iter__(self):
+        return iter(
+            [self.FRONT_LEFT, self.FRONT_RIGHT, self.BACK_LEFT, self.BACK_RIGHT]
+        )
 
 
 class GaitPhaseMsg(BottoMessage):
@@ -78,7 +84,8 @@ class LegAnglesPhaseMsg(BottoMessage):
         return cls(
             {LegEnum[name]: LegAnglesMsg.from_dict(ang) for name, ang in d.items()}
         )
-        
+
+
 class SensorDataMsg(BottoMessage):
     """Message representing sensor data."""
 

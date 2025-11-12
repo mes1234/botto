@@ -13,23 +13,7 @@ import time
 class VisualizerProcessor(BottoProcess[SensorDataMsg]):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.urdf_file = "quadruped_full.urdf"
-
-        # self.joints = {
-        #     "base_joint": 0.0,
-        #     "base_link_to_fl_hip": 0.0,
-        #     "fl_hip_to_fl_knee": 0.0,
-        #     "fl_knee_to_fl_foot": 0.0,
-        #     "base_link_to_fr_hip": 0.0,
-        #     "fr_hip_to_fr_knee": 0.0,
-        #     "fr_knee_to_fr_foot": 0.0,
-        #     "base_link_to_rr_hip": 0.0,
-        #     "rr_hip_to_rr_knee": 0.0,
-        #     "rr_knee_to_rr_foot": 0.0,
-        #     "base_link_to_rl_hip": 0.0,
-        #     "rl_hip_to_rl_knee": 0.0,
-        #     "rl_knee_to_rl_foot": 0.0,
-        # }
+        self.urdf_file = "quadruped_full.urdf" 
 
     def run_code(self):
         # Step 2: Start PyBullet GUI
