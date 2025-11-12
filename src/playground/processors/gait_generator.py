@@ -27,7 +27,7 @@ class GaitGeneratorProcess(BottoProcess[GaitPhaseMsg]):
             LegEnum.BACK_LEFT: LegPositionMsg(0.0, 0.0, -1.7 - cycle),
             LegEnum.BACK_RIGHT: LegPositionMsg(0.0, 0.0, -1.7 + cycle),
         }
-        self.logger.debug(f"Generated GaitPhaseMsg with cycle value: {-1.8 + cycle}")
+        self.logger.debug(f"Generated GaitPhaseMsg with cycle value: {-1.7 + cycle}")
         return GaitPhaseMsg(leg_positions)
 
     def get_topic_type(self):
