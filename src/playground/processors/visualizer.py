@@ -13,7 +13,7 @@ import time
 class VisualizerProcessor(BottoProcess[SensorDataMsg]):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.urdf_file = "quadruped_full.urdf" 
+        self.urdf_file = "quadruped_full.urdf"
 
     def run_code(self):
         # Step 2: Start PyBullet GUI
@@ -86,13 +86,10 @@ class VisualizerProcessor(BottoProcess[SensorDataMsg]):
     @classmethod
     def map(cls, position: List[float], orientation: List[float]) -> SensorDataMsg:
         data = {
-            "p_x": position[0],
-            "p_y": position[1],
-            "p_z": position[2],
-            "o_x": orientation[0],
-            "o_y": orientation[1],
-            "o_z": orientation[2],
-            "o_w": orientation[3],
+            "i": orientation[0],
+            "j": orientation[1],
+            "k": orientation[2],
+            "w": orientation[3],
         }
 
         return SensorDataMsg(data)

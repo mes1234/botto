@@ -15,8 +15,10 @@ class Controller(BottoProcess[GaitPhaseWithCorrectionsMsg]):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.sensors = None
-        self.sensor_o_x = []
-        self.sensor_o_y = []
+        self.sensor_o_i = []
+        self.sensor_o_j = []
+        self.sensor_o_k = []
+        self.sensor_o_w = []
 
     def run_code(self):
         root = tk.Tk()
@@ -55,14 +57,16 @@ class Controller(BottoProcess[GaitPhaseWithCorrectionsMsg]):
 
         self.fig = Figure(figsize=(6, 4), dpi=100)
         self.ax = self.fig.add_subplot(111)
-        self.ax.set_title("Sensor X/Y vs Time")
+        self.ax.set_title("Sensors vs Time")
         self.ax.set_xlabel("Time (s)")
         self.ax.set_ylabel("Sensor Values")
         self.ax.grid(True)
 
-        # Two trend lines: one for X, one for Y
-        (self.line_x,) = self.ax.plot([], "r-", label="Sensor X")
-        (self.line_y,) = self.ax.plot([], "b-", label="Sensor Y")
+        #  trend lines:
+        (self.line_i,) = self.ax.plot([], "r-", label="Sensor i")
+        (self.line_j,) = self.ax.plot([], "b-", label="Sensor j")
+        (self.line_k,) = self.ax.plot([], "g-", label="Sensor k")
+        (self.line_w,) = self.ax.plot([], "y-", label="Sensor w")
         self.ax.legend(loc="upper right")
 
         # Embed the figure in Tkinter
@@ -75,12 +79,16 @@ class Controller(BottoProcess[GaitPhaseWithCorrectionsMsg]):
 
     def handle_sensors(self, sensors: SensorDataMsg):
         self.sensors = sensors
-        self.sensor_o_x.append(sensors.sensor_values["o_x"])
-        self.sensor_o_y.append(sensors.sensor_values["o_y"])
+        self.sensor_o_i.append(sensors.sensor_values["i"])
+        self.sensor_o_j.append(sensors.sensor_values["j"])
+        self.sensor_o_k.append(sensors.sensor_values["k"])
+        self.sensor_o_w.append(sensors.sensor_values["w"])
         # Limit history length to avoid slowing down
-        if len(self.sensor_o_x) > 200:
-            self.sensor_o_x.pop(0)
-            self.sensor_o_y.pop(0)
+        if len(self.sensor_o_i) > 200:
+            self.sensor_o_i.pop(0)
+            self.sensor_o_j.pop(0)
+            self.sensor_o_k.pop(0)
+            self.sensor_o_w.pop(0)
 
     def handle_gait(self, gait_phase: GaitPhaseMsg):
 
@@ -107,11 +115,12 @@ class Controller(BottoProcess[GaitPhaseWithCorrectionsMsg]):
         z = self.z_slider.get()
         self.value_label.config(text=f"Offset X: {x:.2f}, Y: {y:.2f}, Z: {z:.2f}")
 
-    def update_plot(self):
-        """Update time-series plot of sensor X and Y values."""
-        x_axis = list(range(len(self.sensor_o_x)))
-        self.line_x.set_data(x_axis, self.sensor_o_x)
-        self.line_y.set_data(x_axis, self.sensor_o_y)
+    def update_plot(self): 
+        x_axis = list(range(len(self.sensor_o_i)))
+        self.line_i.set_data(x_axis, self.sensor_o_i)
+        self.line_j.set_data(x_axis, self.sensor_o_j)
+        self.line_k.set_data(x_axis, self.sensor_o_k)
+        self.line_w.set_data(x_axis, self.sensor_o_w)
 
         # Adjust axes dynamically
         self.ax.relim()

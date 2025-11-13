@@ -18,7 +18,10 @@ robot_driver = RobotDriver("robot_driver", "robot_driver_none_topic")
 
 controller.register_subscribe_callback(gait_generator, controller.handle_gait)
 
-controller.register_subscribe_callback(visualizer, controller.handle_sensors)
+# Sim sensor data
+#controller.register_subscribe_callback(visualizer, controller.handle_sensors)
+# Real sensor data
+controller.register_subscribe_callback(robot_driver, controller.handle_sensors)
 
 ik_resolver.register_subscribe_callback(controller, ik_resolver.resolve_ik_handler)
 
