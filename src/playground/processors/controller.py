@@ -26,13 +26,13 @@ class Controller(BottoProcess[GaitPhaseWithCorrectionsMsg]):
 
         # Create sliders
         self.x_slider = ttk.Scale(
-            root, from_=-100, to=100, orient="horizontal", command=self.update_values
+            root, from_=-200, to=200, orient="horizontal", command=self.update_values
         )
         self.y_slider = ttk.Scale(
-            root, from_=-100, to=100, orient="horizontal", command=self.update_values
+            root, from_=-200, to=200, orient="horizontal", command=self.update_values
         )
         self.z_slider = ttk.Scale(
-            root, from_=-100, to=100, orient="horizontal", command=self.update_values
+            root, from_=-200, to=200, orient="horizontal", command=self.update_values
         )
 
         ttk.Label(root, text="Enable").pack(pady=10)

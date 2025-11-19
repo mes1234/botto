@@ -31,12 +31,37 @@ class Angles:
 
 class FK_Leg:
 
-    def __init__(self, l1: float, l2: float, *args, **kwargs):
+    def __init__(self, l1: float, l2: float, y0: float, *args, **kwargs):
         self.l1 = l1
         self.l2 = l2
+        self.yo = y0
         pass
 
     def compute_fk(self, angles: Angles) -> Position:
+
+        x1 = self.l1 * np.cos(angles.alfa_2 + np.pi / 2)
+        z1 = -self.l1 * np.sin(angles.alfa_2 + np.pi / 2)
+
+        x2 = x1 + self.l2 * np.cos(angles.alfa_3 + np.pi / 2)
+        z2 = z1 + -self.l2 * np.sin(angles.alfa_3 + np.pi / 2)
+
+        x1p = x1
+        x2p = x2
+
+        y1p = self.yo * np.cos(angles.alfa_1) - z1 * np.sin(angles.alfa_1)
+        y2p = self.yo * np.cos(angles.alfa_1) - z2 * np.sin(angles.alfa_1)
+
+        z1p = self.yo * np.sin(angles.alfa_1) + z1 * np.cos(angles.alfa_1)
+        z2p = self.yo * np.sin(angles.alfa_1) + z2 * np.cos(angles.alfa_1)
+
+        fk_mid = [x1p, y1p, z1p]
+        fk_end = [x2p, y2p, z2p]
+
+        return Position(
+            fk_end[0], fk_end[1], fk_end[2], fk_mid[0], fk_mid[1], fk_mid[2]
+        )
+
+    def compute_fk1(self, angles: Angles) -> Position:
         # Existing rotations
 
         # TODO vectorize it

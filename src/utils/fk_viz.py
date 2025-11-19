@@ -5,39 +5,29 @@ import sys, os
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
 
-from src.utils.fk import Angles, Position
+from src.utils.fk import Angles, FK_Leg, Position
 from src.utils.ik import IK_Leg, IK_Limits
 
 
 step = np.pi / 180.0  # 1deg resolution
 alfa_1_limits = IK_Limits(-np.pi / 4.0, np.pi / 4.0)
 alfa_2_limits = IK_Limits(-np.pi / 4.0, np.pi / 4.0)
-alfa_3_limits = IK_Limits(0, np.pi / 2.0)
+alfa_3_limits = IK_Limits(-np.pi / 2.0, 0)
 l_1 = 1.0
 l_2 = 1.0
-y0 = 0.1
+y0 = 0.2
 k = 1
-leg = IK_Leg(
-    step,
-    alfa_1_limits=alfa_1_limits,
-    alfa_2_limits=alfa_2_limits,
-    alfa_3_limits=alfa_3_limits,
-    k=k,
-    l1=l_1,
-    l2=l_2,
-    y0=y0,
-)
+leg = FK_Leg(l1=l_1, l2=l_2, y0=y0)
 # --------------------------------------
 
 # Initial position
-x_init, y_init, z_init = 0.0, 0.0, -1.8
+angles = Angles(0.0, 0.0, 0.0)
 
 # Set up the figure and axes
 fig, (ax_xz, ax_zy) = plt.subplots(1, 2, figsize=(10, 5))
 plt.subplots_adjust(bottom=0.25)
 
 # Initial computation
-angles = leg.compute_ik([Position(x_init, y_init, z_init)])[0]
 pos = leg.compute_fk(Angles(angles.alfa_1, angles.alfa_2, angles.alfa_3))
 
 # Plot placeholders for both planes
@@ -61,18 +51,17 @@ ax_x = plt.axes([0.2, 0.1, 0.65, 0.03])
 ax_y = plt.axes([0.2, 0.06, 0.65, 0.03])
 ax_z = plt.axes([0.2, 0.02, 0.65, 0.03])
 
-s_x = Slider(ax_x, "X", -0.5, 0.5, valinit=x_init)
-s_y = Slider(ax_y, "Y", -0.5, 0.5, valinit=y_init)
-s_z = Slider(ax_z, "Z", -2.0, -1.5, valinit=z_init)
+s_a1 = Slider(ax_x, "alfa_1", -np.pi / 2.0, np.pi / 2.0, valinit=angles.alfa_1)
+s_a2 = Slider(ax_y, "alfa_2", -np.pi / 2.0, np.pi / 2.0, valinit=angles.alfa_2)
+s_a3 = Slider(ax_z, "alfa_3", -np.pi / 2.0, np.pi / 2.0, valinit=angles.alfa_3)
 
 
 def update(val):
-    x = s_x.val
-    y = s_y.val
-    z = s_z.val
+    a1 = s_a1.val
+    a2 = s_a2.val
+    a3 = s_a3.val
 
-    angles = leg.compute_ik([Position(x, y, z)])[0]
-    pos = leg.compute_fk(Angles(angles.alfa_1, angles.alfa_2, angles.alfa_3))
+    pos = leg.compute_fk(Angles(a1, a2, a3))
 
     # For visualization, assume 4 points: origin + 3 joints
     # (You can replace these with your own joint FK positions)
@@ -87,8 +76,8 @@ def update(val):
     fig.canvas.draw_idle()
 
 
-s_x.on_changed(update)
-s_y.on_changed(update)
-s_z.on_changed(update)
+s_a1.on_changed(update)
+s_a2.on_changed(update)
+s_a3.on_changed(update)
 
 plt.show()

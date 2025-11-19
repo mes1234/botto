@@ -16,12 +16,13 @@ from src.utils.fk import Angles, Position
 class IKResolverProcess(BottoProcess[LegAnglesPhaseMsg]):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        step = np.pi / 180.0  # 2deg resolution
+        step = np.pi / 180.0 * 2.0  # 2deg resolution
         alfa_1_limits = IK_Limits(-np.pi / 4.0, np.pi / 4.0)
         alfa_2_limits = IK_Limits(-np.pi / 4.0, np.pi / 4.0)
         alfa_3_limits = IK_Limits(0.0, np.pi / 2.0)
         l_1 = 1.0
-        l_2 = 1.0
+        l_2 = 1.49
+        y0 = 0.0
         k = 1
         self.leg = IK_Leg(
             step,
@@ -31,6 +32,7 @@ class IKResolverProcess(BottoProcess[LegAnglesPhaseMsg]):
             k=k,
             l1=l_1,
             l2=l_2,
+            y0=y0,
         )
 
     def run_code(self):
