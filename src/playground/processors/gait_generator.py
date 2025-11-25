@@ -14,8 +14,8 @@ class GaitGeneratorProcess(BottoProcess[GaitPhaseMsg]):
         # Gait configuration
         self.frequency = 1.0  # steps per second
         self.duty_factor = 0.5 * math.pi * 2  # % of cycle in stance
-        self.step_height = 0.2
-        self.step_length = 0.5
+        self.step_height = 0.5
+        self.step_length = 0.7
 
         # Phase offsets (walk)
         self.offset = {
@@ -24,6 +24,12 @@ class GaitGeneratorProcess(BottoProcess[GaitPhaseMsg]):
             LegEnum.BACK_LEFT: 0.5,
             LegEnum.BACK_RIGHT: 0.0,
         }
+        # self.offset = {
+        #     LegEnum.FRONT_LEFT: 0.0,
+        #     LegEnum.FRONT_RIGHT: 0.0,
+        #     LegEnum.BACK_LEFT: 0.0,
+        #     LegEnum.BACK_RIGHT: 0.0,
+        # }
 
     def run_code(self):
         counter = 0
