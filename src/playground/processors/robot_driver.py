@@ -81,24 +81,24 @@ class RobotDriver(BottoProcess[SensorDataMsg]):
         super().__init__(*args, **kwargs)
         self.corrections = {
             LegEnum.FRONT_LEFT: {
-                "alfa_1": {"offset": 90.0, "mult": 55.0 / 34.0},
+                "alfa_1": {"offset": 90.0, "mult": -55.0 / 34.0},
                 "alfa_2": {"offset": 90.0, "mult": 1.0},
                 "alfa_3": {"offset": 90.0, "mult": 46.0 / 24.0},
             },
             LegEnum.FRONT_RIGHT: {
-                "alfa_1": {"offset": 90.0, "mult": 55.0 / 34.0},
+                "alfa_1": {"offset": 90.0, "mult": -55.0 / 34.0},
                 "alfa_2": {"offset": 90.0, "mult": -1.0},
                 "alfa_3": {"offset": 90.0, "mult": -46.0 / 24.0},
             },
             LegEnum.BACK_LEFT: {
                 "alfa_1": {"offset": 90.0, "mult": 55.0 / 34.0},
-                "alfa_2": {"offset": 90.0, "mult": 1.0},
-                "alfa_3": {"offset": 90.0, "mult": 46.0 / 24.0},
+                "alfa_2": {"offset": 90.0, "mult": -1.0},
+                "alfa_3": {"offset": 90.0, "mult": -46.0 / 24.0},
             },
             LegEnum.BACK_RIGHT: {
                 "alfa_1": {"offset": 90.0, "mult": 55.0 / 34.0},
-                "alfa_2": {"offset": 90.0, "mult": -1.0},
-                "alfa_3": {"offset": 90.0, "mult": -46.0 / 24.0},
+                "alfa_2": {"offset": 90.0, "mult": 1.0},
+                "alfa_3": {"offset": 90.0, "mult": 46.0 / 24.0},
             },
         }
         # MQTT settings

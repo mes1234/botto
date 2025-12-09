@@ -57,7 +57,10 @@ class IKResolverProcess(BottoProcess[LegAnglesPhaseMsg]):
         positions = []
         for leg_enum in LegEnum:
             leg_pos_msg = gait_phase.leg_positions[leg_enum]
-            positions.append(Position(leg_pos_msg.x, leg_pos_msg.y, leg_pos_msg.z))
+            if leg_enum == LegEnum.BACK_LEFT or leg_enum == LegEnum.BACK_RIGHT:
+                positions.append(Position(-leg_pos_msg.x, leg_pos_msg.y, leg_pos_msg.z))
+            else:
+                positions.append(Position(leg_pos_msg.x, leg_pos_msg.y, leg_pos_msg.z))
         return positions
 
     @classmethod

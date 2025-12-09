@@ -14,7 +14,7 @@ class GaitGeneratorProcess(BottoProcess[GaitPhaseMsg]):
         # Gait configuration
         self.frequency = 1.0  # steps per second
         self.duty_factor = 0.5 * math.pi * 2  # % of cycle in stance
-        self.step_height = 0.2
+        self.step_height = 0.5
         self.step_length = 0.5
 
         # Phase offsets (walk)
@@ -38,7 +38,7 @@ class GaitGeneratorProcess(BottoProcess[GaitPhaseMsg]):
                 counter = 0
             counter += 10
             gait_phase = self.generate_gait_phase(counter / 100)
-            sleep(0.1)  # Simulate processing delay
+            sleep(0.2)  # Simulate processing delay
             self.publish(gait_phase)
             self.logger.debug("Published GaitPhaseMsg")
 
